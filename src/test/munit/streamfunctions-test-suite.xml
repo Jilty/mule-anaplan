@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="streamfunctions-test-suite.xml" />
+	<munit:test name="upload-from-sfdc-success" doc:id="3f448267-7ead-4cef-b9a1-5f30594d03fa" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8818f6de-4ac8-4885-97f7-d22d843eeff0" processor="anaplan:execute-file-upload-streaming">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8c46ff24-452e-4b47-8290-3c782f884571" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath:///munitResources/upload-sfdc-success-mock.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="5beaeaf5-3633-4e66-89e6-a961bf6559cd">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/upload-sfdc-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="uploadFromSFDC" doc:id="4a05903e-bd92-432a-b4b6-093164435b31" name="upload-file-from-sfdc-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b037ca02-f113-425a-9502-0c60f1bd55bd" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="upload-from-sfdc-failure" doc:id="fd39a1bf-914f-457f-b159-f8bbd9851969" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="f4e79b4e-6acc-4be7-8388-d373e1d7cd33" processor="anaplan:execute-file-upload-streaming" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8c46ff24-452e-4b47-8290-3c782f884571" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#["Failed"]' mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="2f2fe5d5-d8f1-4163-88f4-8b1f724db2b6">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/upload-sfdc-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="uploadFromSFDC" doc:id="f97d801c-06c7-43a6-bc81-d69c1bd93fce" name="upload-file-from-sfdc-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b1d4428d-f657-4bb4-8af1-4554405e8cd9" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="upload-from-sfdc-payload-null" doc:id="4edc6018-4bff-408c-b7bc-60c8f46f198d" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b29f68ec-19b9-4b33-87b7-c5153377aea3" processor="salesforce:query-result-stream" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fdda0243-3442-4c89-b4ec-1a19705f1914" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[null]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="df089e61-178b-4f33-8f3a-f0f6a86fdca1">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/upload-sfdc-input.dwl')]" mediaType="application/json" />
+		</munit:set-event>
+			<flow-ref doc:name="uploadFromSFDC" doc:id="429816da-48b0-4e4c-b26d-fccab920a80e" name="upload-file-from-sfdc-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="c4e9cd6a-4968-46ea-8be1-f8be3602e012" message="This is not successful Payload.">
+			<munit-tools:that><![CDATA[#[%dw 2.0
+import * from dw::test::Asserts
+---
+payload.message as String must contain("null")]]]></munit-tools:that>
+		</munit-tools:assert>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="bce3f11f-3967-4b3e-aa32-18b57cdc6da2" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="upload-from-sfdc-anaplan-error" doc:id="3cf07934-0c7d-4c62-b35e-87420ae02a4d" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="465749e7-f934-44c0-a6bc-5b668ce0ea14" processor="anaplan:execute-file-upload-streaming" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8c46ff24-452e-4b47-8290-3c782f884571" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANAPLAN:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="51d69160-6fd9-4b98-8b8c-bec1d570950c">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/upload-sfdc-input.dwl')]" mediaType="application/json" />
+		</munit:set-event>
+			<flow-ref doc:name="uploadFromSFDC" doc:id="450769b6-111e-44fb-9d2f-5b74392922ba" name="upload-file-from-sfdc-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="6e3f3e86-4572-460f-b1b2-5b6f104d6f4f" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="import-from-sfdc-success-test" doc:id="1faebea2-c299-4692-8436-b7d96261d9bc" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e89441d4-8629-4972-8fb1-3bcf242a3554" processor="anaplan:execute-import-streaming">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="71230da1-0b11-4396-ad39-61cf56cb36d0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath:///munitResources/import-sfdc-mock.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="f482ac02-44ed-4a0c-a2cb-c2519708d721">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/import-from-sfdc-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="import-from-sfdc-flow" doc:id="6a213013-76bb-4e29-bd02-2ca6880496aa" name="import-from-sfdc-to-anaplan-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b6c11352-d3d2-43a4-bbd5-74420815db3d" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="import-from-sfdc-anaplan-error" doc:id="5eee6673-9912-4449-a10c-f67b4346bf1a" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="56f3cf53-a8cc-4b73-ba22-d8c9d2051133" processor="anaplan:execute-import-streaming" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="71230da1-0b11-4396-ad39-61cf56cb36d0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANAPLAN:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="1716461c-e53a-48ff-9580-6290d1854ce4">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/import-from-sfdc-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="importFromSFDC" doc:id="b0a73212-15ae-4a4b-83ec-3815c94cafa7" name="import-from-sfdc-to-anaplan-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ee613b3b-b215-4e1e-b343-31d348b0c29c" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="import-from-sfdc-payload-null" doc:id="af397d8a-ac9a-4686-bb8a-e2591b586ecd" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="fc350fc1-c315-4c44-b9c6-ac201d574977" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a20e2301-ecdd-48ca-809b-8b8e951ee67e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[null]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="533767d9-8fb9-4cbc-8483-029bd22042c8">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/import-sfdc-null-input.dwl')]" mediaType="application/json" />
+		</munit:set-event>
+			<flow-ref doc:name="importFromSFDC" doc:id="0a5534d4-15f2-4183-a8f7-43f83d88633c" name="import-from-sfdc-to-anaplan-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="20c17079-1373-405f-85e3-4beee75f6bce" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="import-sfdc-salesforce-error" doc:id="2b7df365-83c8-4a6a-a10e-90f225550ce1" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="fbde0b6b-9d06-4e4f-95ff-e5b29776a31f" processor="salesforce:query-result-stream" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fdda0243-3442-4c89-b4ec-1a19705f1914" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="SALESFORCE:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="381f2b33-616a-4cd3-9d69-5e4433d14742">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/import-sfdc-null-input.dwl')]" mediaType="application/json" />
+		</munit:set-event>
+			<flow-ref doc:name="importFromSFDC" doc:id="78832080-c202-41d1-ba3e-4d4ee99dfe0c" name="import-from-sfdc-to-anaplan-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="e05e4ce9-c89e-4830-b800-c91c4c0203a9" actual="#[payload.errorType]" expected="#['CONNECTIVITY']" />
+			<munit-tools:assert-that doc:name="Assert that" doc:id="72ffbffa-c7af-44cf-8335-07ec90639c1d" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="export-to-sfdc-success" doc:id="d89c5ae6-42d8-46b8-b002-cb9c3b5e2d02" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="29188754-c7bc-4d87-922c-e2a64cb33643" processor="anaplan:execute-export-streaming">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="92f83798-7ffa-4024-933d-3ae0c216c467" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath:///munitResources/export-sfdc-success-mock.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="3819d689-33d4-4335-a889-255bdf84e2de">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/export-sfdc-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="exportToSFDC" doc:id="56e4582d-f7df-40a1-b6e0-31ea757e5a63" name="export-to-SFDC-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="d67d6699-8690-405e-ba58-8fea211485c9" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="export-to-sfdc-sfdc-failure" doc:id="609376d0-4fe3-441b-b47d-bcd805435386" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0929bc94-2e85-440a-a354-2eaef9e5754c" processor="salesforce:create-batch-stream">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="009de3b7-4e18-4866-80c1-e5224c2a1701" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="BatchStream" value="#[ output application/java --- {numberRecordsProcessed : 0 } ]" mediaType="application/java" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="89057fc3-2376-4d8d-acda-0b2704c83c30">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/export-sfdc-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="exportToSFDC" doc:id="52a691f1-ac32-48e3-927c-5e95626f510c" name="export-to-SFDC-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="02eb111a-fb68-4b40-8ce4-d8e6775705e3" message="Payload is not valid" is="#[MunitTools::both(MunitTools::notNullValue(),MunitTools::withMediaType('application/json'))]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

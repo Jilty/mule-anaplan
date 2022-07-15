@@ -1,0 +1,51 @@
+#api:
+ #id: "17987642"
+
+anaplan:
+  username : "padmavathy.k@njclabs.com"
+  authURL : "https://auth.anaplan.com"
+  apiURL : "https://api.anaplan.com"
+  workspaceID : "![EyJ7JIhfGVMwlKOQrLhaVchYNUstqzNEHmAoelpHOtwVyNx9OfE4ew==]"
+  modelID: "![0Siopjhk/qjEjdc5YEZLxAfrZc3iWtoWDzttXe8LNoVXPLYaYMIptQ==]"
+  pwd : "![Q8fjbOELyBaERoZy3TK5cA==]"
+  token : "![Ia8lyzqn5PA69UNGJsJjaCixKeEPME52vqmdonkseRbwc7Nl9NSUjQ==]"
+  
+
+sfdc:
+  authURL : "https://login.salesforce.com/services/Soap/u/52.0"
+  user : "padmavathy.k@njclabs.com"
+  pwd : "![Q8fjbOELyBaERoZy3TK5cA==]"
+  token : "![Aqr7a1gdR0s727/vYvggMW0fcZOdibI97l3yE5Owf1w=]"
+  retryCount: "2"
+  retryFrequency: "2000"
+  
+tls.keystore:
+  type: "pkcs12"
+  path: "certs/apix-anaplan-sapi-dev.p12"
+  alias: "server"
+  password: "![TjrgNiKb/sw=]"
+  keyPassword: "![TjrgNiKb/sw=]"
+  
+vm:
+  queue: "anaplanStreamQueue"
+  timeout: "30"
+  
+import:
+  filePath: "${mule.home}/apps/${app.name}/files/"
+  chunkPath : "${mule.home}/apps/${app.name}/files/"
+  dumpPath : "${mule.home}/apps/${app.name}/files/"
+  retryCount : "3"
+  
+export:
+  filePath: "${mule.home}/apps/${app.name}/files/"
+  retryCount : "3"
+  
+executeDelete: 
+  retryCount : "3"
+  
+process:
+  retryCount: "3"
+  dumpPath: "${mule.home}/apps/${app.name}/files/"
+  
+upload:
+  retryCount : "3"

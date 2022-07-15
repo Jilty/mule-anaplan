@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="api-test-suite.xml" />
+	<munit:test name="api-test-bad-request-error" doc:id="461163c4-e477-4f1a-ba46-fbcf7ad98491" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="da82c61a-c45f-4feb-a610-ae48d86b51ea" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="apixAnaplanSapiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="ab85ea9c-6340-40de-a07e-e9dbe1114a71">
+				<munit:payload value="#[output application/json --- readUrl('classpath:///munitResources/describe-import-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="9600f955-8e1e-4c7f-8298-c11e9b0d21f6" >
+				<flow-ref doc:name="api-kit" doc:id="835df998-2b3f-46ab-99f8-8f763518c8d6" name="apix-anaplan-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="94493ae2-9f01-4f7d-bc6b-ed2076ada592" type="ANY" >
+						<logger level="INFO" doc:name="Logger" doc:id="9c0cab41-3b9b-4aa1-9414-b89711b8408f" message="Logging the API-KIT error API-KIT:BAD_REQUEST" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="9a863fef-5911-41c5-b6e9-e847c4eee1be" actual="#[payload.errorCode]" expected="#[400]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="api-test-not-found-error" doc:id="edbd6ad3-e75a-44bd-b04d-08be192e5857" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="6b3fc03a-9141-420f-b809-df9a54aef20a" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="apixAnaplanSapiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="be4247f1-14f7-4828-8ed0-55d034314e07" >
+				<flow-ref doc:name="api-kit" doc:id="1743e68f-8145-411a-a607-dd108f9e119f" name="apix-anaplan-sapi-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="5b89d6ce-5520-4dd5-857b-56a8610ac318" type="ANY" >
+						<logger level="INFO" doc:name="Logger" doc:id="2c22d9f5-cbee-4193-b770-d6a7fa0c2cef" message="Logging the API-KIT error API-KIT:NOT_FOUND" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="6ffeac3a-074b-402d-ba36-a0a3961670e9" actual="#[payload.errorCode]" expected="#[404]" />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
